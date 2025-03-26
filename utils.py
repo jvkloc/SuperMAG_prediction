@@ -115,8 +115,9 @@ def get_supermag_data(path: str, file: str, fill: int, targets: list[str]) -> Da
     # Filter out rows where any target has the fill value.
     mask = npall(superMAG[targets] != fill, axis=1)
     superMAG = superMAG[mask]
-    print(f"SuperMAG shape after removing {fill} values from {targets}: {superMAG.shape}")
+    print(f"SuperMAG shape after removing fill value ({fill}) instances from {targets}: {superMAG.shape}")
     
+    # Return the processed data.
     return superMAG
 
 
