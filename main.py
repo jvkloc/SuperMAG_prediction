@@ -8,18 +8,6 @@ from numpy import ndarray
 from pandas import DataFrame
 from xgboost import Booster
 
-from constants import (
-    START,
-    END,
-    TARGETS,
-    CDAWEB_PARAMS,
-    PATH,
-    FILE,
-    FILL,
-    RE,
-    K,
-    MP,
-)
 from download_data import load_cdaweb_data
 from metrics import plot_prediction, print_average_metrics, print_feature_importances
 from training import training_loop
@@ -81,7 +69,7 @@ def main() -> None:
     stop_timing(script_start)
 
     # Plot predictions from final fold.
-    plot_prediction(TARGETS, y_test, y_pred)
+    plot_prediction(y_test, y_pred)
 
 
 if __name__ == "__main__":
