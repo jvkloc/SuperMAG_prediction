@@ -8,7 +8,11 @@ from xgboost import Booster
 from constants import TARGETS
 
 
-def plot_prediction(targets: list[str], y_test: ndarray, y_pred: ndarray) -> None:
+def plot_prediction(
+    y_test: ndarray,
+    y_pred: ndarray,
+    targets: list[str] = TARGETS
+) -> None:
     """Plots the prediction vs. true values."""
     a, axs = subplots(2, 2, figsize=(10, 10))
     print(type(axs), type(a))
@@ -50,7 +54,10 @@ def print_feature_importances(model: Booster, features: list[str]) -> None:
 
 
 def print_prediction_metrics(
-    targets: list[str], y_test: ndarray, y_pred: ndarray, model: Booster,
+    y_test: ndarray,
+    y_pred: ndarray,
+    model: Booster,
+    targets: list[str] = TARGETS
 ) -> None:
     """Prints prediction metrics."""
     # Print prediction metrics.
@@ -63,23 +70,25 @@ def print_prediction_metrics(
     print(f"Validation RMSE at best iteration: {model.best_score:.2f}")
 
 
-def print_average_metrics(all_metrics: list[dict]) -> None:
+def print_average_metrics(
+    all_metrics: list[dict], targets: list[str] = TARGETS
+) -> None:
     """Prints the average metrics across all training folds."""
     print("\nAverage metrics across all folds:")
     # Initialise a dictionary for each target's metrics.
     avg_metrics: dict[str, dict] = {
-        target: {'R2': [], 'MSE': [], 'MAE': []} for target in TARGETS
+        target: {'R2': [], 'MSE': [], 'MAE': []} for target in targets
     }
     
     # Set the values into the dictionary.
     for fold_metrics in all_metrics:
-        for target in TARGETS:
+        for target in targets:
             avg_metrics[target]['R2'].append(fold_metrics[target]['R2'])
             avg_metrics[target]['MSE'].append(fold_metrics[target]['MSE'])
             avg_metrics[target]['MAE'].append(fold_metrics[target]['MAE'])
 
     # Print the values from the dictionary.
-    for target in TARGETS:
+    for target in targets:
         print(f"\nAverage metrics for {target}:")
         print(f"R²: {npmean(avg_metrics[target]['R2']):.4f} (±{npstd(avg_metrics[target]['R2']):.4f})")
         print(f"MSE: {npmean(avg_metrics[target]['MSE']):.2f} (±{npstd(avg_metrics[target]['MSE']):.2f})")
