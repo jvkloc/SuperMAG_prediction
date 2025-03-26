@@ -138,9 +138,15 @@ def merge_data(CDAWeb: DataFrame, SuperMAG: DataFrame) -> DataFrame:
 
 def print_data_gaps(data: ndarray, limit: int = 300) -> None:
     """Prints data gaps longer than limit seconds."""
+    # Get an array of time gaps between consecutive data points.
     gaps: ndarray = data.index.to_series().diff().dt.total_seconds()
+    # Get counts of all different gaps larger than the limit. 
     longer: ndarray = gaps[gaps > limit].value_counts()
-    print(f"Gaps over {limit} mins in the dataset: {longer}")
+    # Print the result.
+    if len(longer) > 0:
+        print(f"Gaps over {limit} seconds in the dataset: {longer}")
+    else:
+        print(f"No gaps over {limit} seconds found")
 
 
 def print_target_stats(targets: list[str], y_train: ndarray, y_test: ndarray, y_val: ndarray) -> None:
