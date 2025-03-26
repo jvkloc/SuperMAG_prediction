@@ -59,7 +59,7 @@ def print_outliers(
     """Prints prediction outliers."""
     for i, target in enumerate(targets):
         nbr: int = len(outliers[i])
-        print(f"\nFound {nbr} outliers (error > {threshold} nT) for {target} in fold {idx + 1}")
+        print(f"Found {nbr} outliers (error > {threshold} nT) for {target} in fold {idx + 1}")
 
 
 def print_results(y_test: ndarray, y_pred: ndarray, targets: list[str] = TARGETS) -> None:
