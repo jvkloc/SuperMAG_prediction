@@ -197,12 +197,15 @@ def split_data(
     X: DataFrame = data[features]
     y: DataFrame = data[targets]
     print(f"X shape: {X.shape}, y shape: {y.shape}")
+    
     # Check the training data for gaps.
     print("Training data gap check:")
     print_data_gaps(X)
+    
     # Check the target data for gaps.
     print("Target data gap check:")
     print_data_gaps(X)
+    
     # Return the train-test-split
     return X, y
 
