@@ -196,6 +196,8 @@ def split_data(
     # Check the target data for gaps.
     print("Target data gap check:")
     print_data_gaps(X)
+    # Return the train-test-split
+    return X, y
 
 
 def stop_timing(script_start: float) -> None:
