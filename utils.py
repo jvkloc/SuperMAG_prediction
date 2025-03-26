@@ -122,7 +122,7 @@ def get_supermag_data(path: str, file: str, fill: int, targets: list[str]) -> Da
 
 
 def load_model(path: str) -> Booster:
-    """Returns an XGBoost model."""
+    """Returns a saved XGBoost model according to the path argument."""
     model = Booster()
     model.load_model(path)
     return model
