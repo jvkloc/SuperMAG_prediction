@@ -1,5 +1,5 @@
-"""Script for training an XGBoost model for SMR prediction with rolling basis CV. Data is downloaded 
-from NASA's CDAWeb and from SuperMAG.
+"""Script for training an XGBoost model for SuperMAG SMR index prediction with 
+rolling basis cross-validation.
 """
 
 from time import perf_counter
