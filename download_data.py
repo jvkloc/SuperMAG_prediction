@@ -4,8 +4,12 @@ from time import perf_counter
 
 from pyspedas import ace, wind
 
+from constants import START, END, CDAWEBPARAMS
 
-def load_cdaweb_data(start: str, end: str, params: dict) -> None:
+
+def load_cdaweb_data(
+    start: str = START, end: str = END, params: dict = CDAWEB_PARAMS
+) -> None:
     """Downloads the parameter data from CDAWeb."""
     trange: list[str] = [start, end]
     # Start timing.
