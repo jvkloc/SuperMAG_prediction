@@ -8,31 +8,6 @@ from xgboost import Booster
 from constants import TARGETS
 
 
-def print_average_metrics(
-    all_metrics: list[dict], targets: list[str] = TARGETS
-) -> None:
-    """Prints the average metrics across all training folds."""
-    print("\nAverage metrics across all folds:")
-    # Initialise a dictionary for each target's metrics.
-    avg_metrics: dict[str, dict] = {
-        target: {'R2': [], 'MSE': [], 'MAE': []} for target in targets
-    }
-    
-    # Set the values into the dictionary.
-    for fold_metrics in all_metrics:
-        for target in targets:
-            avg_metrics[target]['R2'].append(fold_metrics[target]['R2'])
-            avg_metrics[target]['MSE'].append(fold_metrics[target]['MSE'])
-            avg_metrics[target]['MAE'].append(fold_metrics[target]['MAE'])
-
-    # Print the values from the dictionary.
-    for target in targets:
-        print(f"\nAverage metrics for {target}:")
-        print(f"R²: {npmean(avg_metrics[target]['R2']):.4f} (±{npstd(avg_metrics[target]['R2']):.4f})")
-        print(f"MSE: {npmean(avg_metrics[target]['MSE']):.2f} (±{npstd(avg_metrics[target]['MSE']):.2f})")
-        print(f"MAE: {npmean(avg_metrics[target]['MAE']):.2f} (±{npstd(avg_metrics[target]['MAE']):.2f})")
-
-
 def plot_prediction(
     y_pred: ndarray,
     y_test: ndarray,
@@ -57,6 +32,31 @@ def plot_prediction(
         ax.set_title(f"Actual vs Predicted {target}")
     tight_layout()
     show()
+
+
+def print_average_metrics(
+    all_metrics: list[dict], targets: list[str] = TARGETS
+) -> None:
+    """Prints the average metrics across all training folds."""
+    print("\nAverage metrics across all folds:")
+    # Initialise a dictionary for each target's metrics.
+    avg_metrics: dict[str, dict] = {
+        target: {'R2': [], 'MSE': [], 'MAE': []} for target in targets
+    }
+    
+    # Set the values into the dictionary.
+    for fold_metrics in all_metrics:
+        for target in targets:
+            avg_metrics[target]['R2'].append(fold_metrics[target]['R2'])
+            avg_metrics[target]['MSE'].append(fold_metrics[target]['MSE'])
+            avg_metrics[target]['MAE'].append(fold_metrics[target]['MAE'])
+
+    # Print the values from the dictionary.
+    for target in targets:
+        print(f"\nAverage metrics for {target}:")
+        print(f"R²: {npmean(avg_metrics[target]['R2']):.4f} (±{npstd(avg_metrics[target]['R2']):.4f})")
+        print(f"MSE: {npmean(avg_metrics[target]['MSE']):.2f} (±{npstd(avg_metrics[target]['MSE']):.2f})")
+        print(f"MAE: {npmean(avg_metrics[target]['MAE']):.2f} (±{npstd(avg_metrics[target]['MAE']):.2f})")
 
 
 def print_feature_importances(model: Booster, features: list[str]) -> None:
