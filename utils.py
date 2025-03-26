@@ -15,10 +15,22 @@ from pandas import DataFrame, read_csv, Series, to_datetime
 from pytplot import get_data
 from xgboost import Booster
 
-from constants import TARGETS
+from constants import (
+    TARGETS,
+    CDAWEB_PARAMS,
+    PATH,
+    FILE,
+    FILL,
+    RE,
+    K,
+    MP,
+    MODEL_PATH
+)
 
 
-def add_lagged_features(combined: DataFrame, targets: list[str]) -> DataFrame:
+def add_lagged_features(
+    combined: DataFrame, targets: list[str] = TARGETS
+) -> DataFrame:
     """Adds lagged SMR values as features to the data DataFrame."""
     for target in targets:
         combined[f'{target}_lag1'] = combined[target].shift(1)
@@ -31,7 +43,12 @@ def add_lagged_features(combined: DataFrame, targets: list[str]) -> DataFrame:
     return pruned
 
 
-def get_cdaweb_data(parameters: dict, re: float, k: float, mp: float) -> dict:
+def get_cdaweb_data(
+    parameters: dict = CDAWEB_PARAMS,
+    re: float = RE,
+    k: float = K,
+    mp: float = MP
+) -> dict:
     """Processes CDAWeb data and returns it in a dictionary. 
     Arguments
     --------- 
@@ -101,7 +118,12 @@ def get_rolling_basis_cv_splits(
     return cv_splits
 
 
-def get_supermag_data(path: str, file: str, fill: int, targets: list[str]) -> DataFrame:
+def get_supermag_data(
+    path: str = PATH,
+    file: str = FILE,
+    fill: int = FILL,
+    targets: list[str] = TARGETS
+) -> DataFrame:
     """Returns SuperMAG data in a pandas DataFrame."""
     superMAG: DataFrame = read_csv(path + file, sep=",")
     superMAG["Date_UTC"] = to_datetime(superMAG["Date_UTC"])
@@ -121,10 +143,10 @@ def get_supermag_data(path: str, file: str, fill: int, targets: list[str]) -> Da
     return superMAG
 
 
-def load_model(path: str) -> Booster:
+def load_model(model_path: str = MODEL_PATH) -> Booster:
     """Returns a saved XGBoost model according to the path argument."""
     model = Booster()
-    model.load_model(path)
+    model.load_model(model_path)
     return model
 
 
@@ -150,7 +172,13 @@ def print_data_gaps(data: ndarray, limit: int = 300) -> None:
         print(f"No gaps over {limit} seconds found")
 
 
-def print_target_stats(targets: list[str], y_train: ndarray, y_test: ndarray, y_val: ndarray) -> None:
+def print_target_stats(
+    y_train: ndarray,
+    y_test: ndarray,
+    y_val: ndarray,
+    targets: list[str] = TARGETS
+) -> None:
+    """Prints statistics of the targets."""
     for i, target in enumerate(targets):
         print(f"Train {target} mean: {y_train[:, i].mean():.2f}, std: {y_train[:, i].std():.2f}, max: {y_train[:, i].max():.2f}")
         print(f"Val {target} mean: {y_val[:, i].mean():.2f}, std: {y_val[:, i].std():.2f}, max: {y_val[:, i].max():.2f}")
