@@ -1,5 +1,6 @@
 """Functions for evaluating model predictions."""
 
+from matplotlib.figure import Figure
 from matplotlib.pyplot import show, subplots, tight_layout
 from numpy import mean as npmean, ndarray, std as npstd
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
@@ -14,10 +15,9 @@ def plot_prediction(
     targets: list[str] = TARGETS
 ) -> None:
     """Plots the prediction vs. true values."""
-    a, axs = subplots(2, 2, figsize=(10, 10))
-    print(type(axs), type(a))
-    axes: ndarray = axs.flatten()
-    print(type(axes))
+    _: ndarray; fig: Figure
+    _, fig = subplots(2, 2, figsize=(10, 10))
+    axes: ndarray = fig.flatten()
     for i, (target, ax) in enumerate(zip(targets, axes)):
         ax.scatter(y_test[:, i], y_pred[:, i], alpha=0.5)
         ax.plot(
