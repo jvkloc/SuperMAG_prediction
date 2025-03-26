@@ -27,7 +27,7 @@ START: str = "2020-01-01 00:00:00"
 END: str = "2020-12-31 23:59:59"
 
 # Project folder.
-FOLDER: str = "/home/jvkloc/Downloads/Computational Statistics/lecture_exercises/cs/gradu"
+FOLDER: str = "your_folder"
 
 # SuperMAG data path and filename.
 PATH: str = "/mag_data/"
