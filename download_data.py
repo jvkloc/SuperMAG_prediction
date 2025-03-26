@@ -4,7 +4,7 @@ from time import perf_counter
 
 from pyspedas import ace, wind
 
-from constants import START, END, CDAWEBPARAMS
+from constants import START, END, CDAWEB_PARAMS
 
 
 def load_cdaweb_data(
