@@ -32,7 +32,10 @@ def get_prediction_metrics(
 
 
 def get_prediction_outliers(
-    y_test: ndarray, y_pred: ndarray, threshold: int, targets: list[str]
+    y_test: ndarray,
+    y_pred: ndarray,
+    threshold: int = THRESHOLD,
+    targets: list[str] = TARGETS,
 ) -> ndarray:
     """Returns prediction outliers based on the threshold."""
     errors: ndarray = npabs(y_test - y_pred)  # Shape: (n_test, 4)
@@ -59,7 +62,7 @@ def print_outliers(
         print(f"\nFound {nbr} outliers (error > {threshold} nT) for {target} in fold {idx + 1}")
 
 
-def print_results(y_test: ndarray, y_pred: ndarray, targets: list[str]) -> None:
+def print_results(y_test: ndarray, y_pred: ndarray, targets: list[str] = TARGETS) -> None:
     """Prints prediction results."""
     y_test_df = DataFrame(y_test, columns=targets)
     for i in range(0, len(y_test), 100):
@@ -114,11 +117,11 @@ def training_loop(
         y_pred: ndarray = model.predict(dtest, iteration_range=iteration_range)
         
         # Print metrics and append them to the metrics list.
-        fold_metrics: dict = get_prediction_metrics(TARGETS, y_test, y_pred, model)
+        fold_metrics: dict = get_prediction_metrics(y_test, y_pred, model)
         metrics_per_fold.append(fold_metrics)
         
         # Print outliers.
-        outliers: ndarray = get_prediction_outliers(y_pred, y_test, THRESHOLD, TARGETS)
+        outliers: ndarray = get_prediction_outliers(y_pred, y_test)
         print_outliers(outliers, fold_idx)
 
         if fold_idx == len(cv_splits):
