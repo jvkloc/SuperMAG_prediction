@@ -41,16 +41,16 @@ def main() -> None:
     set_environment_variable()
     
     # Download CDAWeb data with timing. TODO: use this via command line arg.
-    load_cdaweb_data(START, END, CDAWEB_PARAMS)
+    load_cdaweb_data()
 
     # Start timing the rest of the script.
     script_start: float = perf_counter()
 
     # Get SuperMAG data.
-    SuperMAG: DataFrame = get_supermag_data(PATH, FILE, FILL, TARGETS)
+    SuperMAG: DataFrame = get_supermag_data()
 
     # Get CDAWeb data.
-    CDAWeb_data: dict = get_cdaweb_data(CDAWEB_PARAMS, RE, K, MP)
+    CDAWeb_data: dict = get_cdaweb_data()
     # Resample the CDAWeb data to one minute intervals to match SuperMAG data.
     CDAWeb: DataFrame = resample_cdaweb_data(CDAWeb_data)
 
