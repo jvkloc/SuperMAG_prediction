@@ -69,7 +69,7 @@ def main() -> None:
     stop_timing(script_start)
 
     # Plot predictions from final fold.
-    plot_prediction(y_test, y_pred)
+    plot_prediction(y_pred, y_test)
 
 
 if __name__ == "__main__":
