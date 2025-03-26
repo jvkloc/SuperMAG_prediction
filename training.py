@@ -124,7 +124,7 @@ def training_loop(
         outliers: ndarray = get_prediction_outliers(y_pred, y_test)
         print_outliers(outliers, fold_idx)
 
-        if fold_idx == len(cv_splits):
+        if fold_idx + 1 == len(cv_splits):
             # Save the model trained on the whole training data.
             model.save_model("xgboost_model.json")
             # Return the model, predicion and the true values.
