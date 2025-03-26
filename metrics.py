@@ -9,8 +9,8 @@ from constants import TARGETS
 
 
 def plot_prediction(
-    y_test: ndarray,
     y_pred: ndarray,
+    y_test: ndarray,
     targets: list[str] = TARGETS
 ) -> None:
     """Plots the prediction vs. true values."""
