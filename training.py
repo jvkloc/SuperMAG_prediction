@@ -52,14 +52,14 @@ def predict_with_loaded_model(model: Booster, X_test: ndarray) -> ndarray:
 
 def print_outliers(
     outliers: ndarray, 
-    idx: int,
+    fold_nbr: int,
     threshold: float = THRESHOLD,
     targets: list[str] = TARGETS,
 ) -> None:
     """Prints prediction outliers."""
     for i, target in enumerate(targets):
         nbr: int = len(outliers[i])
-        print(f"Found {nbr} outliers (error > {threshold} nT) for {target} in fold {idx + 1}")
+        print(f"Found {nbr} outliers (error > {threshold} nT) for {target} in fold {fold_nbr}")
 
 
 def print_results(y_test: ndarray, y_pred: ndarray, targets: list[str] = TARGETS) -> None:
@@ -98,14 +98,18 @@ def train_xgboost(
 
 
 def training_loop(
-    cv_splits: list[tuple], metrics_per_fold: list[dict]
+    cv_splits: list[tuple],
+    metrics_per_fold: list[dict],
+    model_path: str = MODEL_PATH,
 ) -> tuple[Booster, ndarray, ndarray]:
     """Trains an XGBoost model for each rolling basis training fold. Saves and
     returns the last model which uses all the training data, as well as 
     predictions and true values."""
 
-    for fold_idx, (X_train, y_train, X_test, y_test) in enumerate(cv_splits):
-        print(f"\nFold {fold_idx + 1}/{len(cv_splits)}")
+    total_folds: int = len(cv_splits)
+    for i, (X_train, y_train, X_test, y_test) in enumerate(cv_splits):
+        fold_nbr: int = i + 1
+        print(f"\nFold {fold_nbr}/{total_folds}")
         print(f"Training samples: {len(X_train)}, Testing samples: {len(X_test)}")
         
         # Create and train the model.
@@ -122,10 +126,12 @@ def training_loop(
         
         # Print outliers.
         outliers: ndarray = get_prediction_outliers(y_pred, y_test)
-        print_outliers(outliers, fold_idx)
+        print_outliers(outliers, fold_nbr)
 
-        if fold_idx + 1 == len(cv_splits):
+        if fold_nbr == total_folds:
             # Save the model trained on the whole training data.
-            model.save_model("xgboost_model.json")
+            print(f"Saving the model from fold {fold_nbr}/{total_folds}...")
+            model.save_model(model_path)
+            print(f"Model saved to {model_path}")
             # Return the model, predicion and the true values.
             return model, y_pred, y_test
