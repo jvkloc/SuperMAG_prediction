@@ -29,11 +29,11 @@ START: str = "2020-01-01 00:00:00"
 END: str = "2020-12-31 23:59:59"
 
 # Project folder.
-FOLDER: str = "/home/jvkloc/Downloads/Computational Statistics/lecture_exercises/cs/gradu"
+FOLDER: str = "your_folder"
 
 # SuperMAG data path and filename.
 PATH: str = f"{FOLDER}/mag_data/"
-FILE: str = "2020-supermag.csv"
+FILE: str = "file.csv"
 
 # XGBoost model path.
 MODEL_PATH: str = f"{FOLDER}/saved_models/xgboost_model.json"
