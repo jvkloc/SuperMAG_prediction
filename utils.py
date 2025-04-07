@@ -244,7 +244,7 @@ def split_data(
     print("Target data gap check:")
     print_data_gaps(y)
     
-    # Return the train-test-split
+    # Return the train-test-split.
     return X, y
 
 
