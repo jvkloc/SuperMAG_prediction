@@ -117,7 +117,7 @@ def get_rolling_basis_cv_splits(
         y_train: ndarray = y.iloc[:train_end]
         X_test: ndarray = X.iloc[test_start:test_end]
         y_test: ndarray = y.iloc[test_start:test_end]
-        # Print the fold information.
+        # Print fold information.
         print(f"Fold {i}: Train {y.index[0]} to {y.index[train_end-1]} ({len(y_train)}), ", end='')
         print(f"Test {y.index[test_start]} to {y.index[test_end-1]} ({len(y_test)})")
         # Append the split to the list.
@@ -146,7 +146,7 @@ def get_supermag_data(
     # Filter out rows where any target has the fill value.
     mask: DataFrame = npall(superMAG[targets] != fill, axis=1)
     superMAG: DataFrame = superMAG[mask]
-    print(f"SuperMAG shape after removing fill value ({fill}) instances from {targets}: {superMAG.shape}")
+    print(f"SuperMAG shape after removing fill values ({fill}) from {targets}: {superMAG.shape}")
     
     # Return the processed data.
     return superMAG
@@ -213,7 +213,7 @@ def resample_cdaweb_data(cdaweb_data: dict) -> DataFrame:
     # Convert Unix time to datetime.
     framed.index = to_datetime(framed.index, unit="s")
     # Resample to one minute intervals to match SuperMAG data.
-    resampled: DataFrame = framed.resample("1min").interpolate(method="linear")
+    resampled: DataFrame = framed.resample("1min").mean().interpolate()
     # Print the resampled data shape.
     print(f"CDAWeb data shape: {resampled.shape}")
     # Return the processed CDAWeb data.
@@ -253,3 +253,10 @@ def stop_timing(script_start: float) -> None:
     script_end: float = perf_counter()
     script_time: float = (script_end - script_start) / 60
     print(f"The script finished in {script_time:.2f} minutes.")
+
+
+def print_results(y_test: DataFrame, y_pred: DataFrame, targets: list[str] = TARGETS) -> None:
+    """Prints prediction results."""
+    for i in range(0, len(y_test), 100):
+        for j, target in enumerate(targets):
+            print(f"{y_test.index[i]} {target} True: {y_test.iloc[i, j]:.2f}, Pred: {y_pred.iloc[i, j]:.2f}")
