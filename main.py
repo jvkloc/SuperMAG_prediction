@@ -1,7 +1,6 @@
 """The main function for training an XGBoost model for SuperMAG SMR index 
 prediction with rolling basis cross-validation. The script can be run also 
-without training, using a saved model and saved preprocessed data.
-"""
+without training, using a saved model."""
 
 from argparse import ArgumentParser, Namespace
 from time import perf_counter
