@@ -95,7 +95,7 @@ def main(description: str = DESCRIPTION) -> None:
         
         # Download CDAWeb data.
         start: str = "2021-01-01 00:00:00"
-        end: str = "2021-01-31 23:59:59"
+        end: str = "2021-01-07 23:59:59"
         load_cdaweb_data(start=start, end=end)
         # Set CDAWeb data to a dictionary.
         CDAWeb_data: dict = get_cdaweb_data()
@@ -103,7 +103,7 @@ def main(description: str = DESCRIPTION) -> None:
         CDAWeb: DataFrame = resample_cdaweb_data(CDAWeb_data)
         
         # Get SuperMAG data from a file.
-        file: str = "2021-jan-supermag.csv"
+        file: str = "2021-jan-7days-supermag.csv"
         SuperMAG: DataFrame = get_supermag_data(file=file)
         
         # Combine both data to one DataFrame.
