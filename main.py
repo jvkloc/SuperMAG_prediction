@@ -10,21 +10,14 @@ from numpy import ndarray
 from pandas import DataFrame
 from xgboost import Booster
 
-from constants import DESCRIPTION, DATA_FEATURES
-from load_data import load_cdaweb_data, load_processed_data
+from constants import DESCRIPTION
+from load_data import load_cdaweb_data
+from load_model import load_xgb_model, predict_with_loaded_model
 from metrics import print_average_metrics, print_feature_importances
-from plotting import (
-    plot_evals_result,
-    plot_features_time_series,
-    plot_smr_histograms,
-    prediction_scatter_plot,
-    global_prediction_scatter_plot,
-    prediction_time_series,
-    global_prediction_time_series,
-)
-from load_model import load_model, predict_with_loaded_model
+from plotting import *
 from training import (
-    get_prediciton_dataframe,
+    add_lagged_features,
+    get_prediction_dataframe,
     get_prediction_metrics,
     training_loop,
 )
@@ -35,7 +28,6 @@ from utils import (
     get_rolling_basis_cv_splits,
     get_supermag_data,
     merge_data,
-    print_data_gaps,
     resample_cdaweb_data,
     set_environment_variable,
     split_data,
@@ -43,7 +35,7 @@ from utils import (
 )
 
 
-def main(description: str = DESCRIPTION, features: str = DATA_FEATURES) -> None:
+def main(description: str = DESCRIPTION) -> None:
     """Main function. TODO: args, assuming load model and load data or 
     download data and train a model using --train.
     """
@@ -56,30 +48,30 @@ def main(description: str = DESCRIPTION, features: str = DATA_FEATURES) -> None:
     add_arguments(parser)
     args: Namespace = parser.parse_args()
 
-    if args.train: 
-        # Download data / check that it is current and train a model.
+    evals: dict | None = None
+
+    if args.train: # Download data / check that it is current and train a model.
         
         # Set PySPEDAS environment variable.
         set_environment_variable()
         
         # Download CDAWeb data.
         load_cdaweb_data()
-
-        # Get SuperMAG data from a file.
-        SuperMAG: DataFrame = get_supermag_data()
-        
         # Set CDAWeb data to a dictionary.
         CDAWeb_data: dict = get_cdaweb_data()
         # Resample CDAWeb data to match SuperMAG data time intervals.
         CDAWeb: DataFrame = resample_cdaweb_data(CDAWeb_data)
+        
+        # Get SuperMAG data from a file.
+        SuperMAG: DataFrame = get_supermag_data()
 
         # Combine both data to one DataFrame.
         data: DataFrame = merge_data(CDAWeb, SuperMAG)
 
-        # Get initial features (lagged features are not added yet).
+        # Get initial features (lagged features do not exist yet).
         initial_features: list[str] = get_initial_features(data, SuperMAG)
         
-        # Get features (X) and targets (y). 
+        # Split the data into features (X) and targets (y). 
         X: DataFrame; y: DataFrame
         X, y = split_data(data, initial_features)
 
@@ -89,43 +81,60 @@ def main(description: str = DESCRIPTION, features: str = DATA_FEATURES) -> None:
         # Train the model.
         metrics_per_fold: list[dict] = []
         model: Booster; y_pred: DataFrame; y_test: DataFrame; 
-        X_test: DataFrame; features: list[str]; evals: dict
+        X_test: DataFrame; features: list[str]; 
         model, y_pred, y_test, X_test, features, evals = training_loop(
             cv_splits, metrics_per_fold
         )
-        
-        # Plot train and test root mean square errors.
-        plot_evals_result(evals, model.best_iteration)
 
         # Print model metrics.
         print_average_metrics(metrics_per_fold)
 
-    else: 
-        # Default to loading preprocessed data and a saved model.
+    else: # Default to loading future data and a saved model.
+
+        # Set PySPEDAS environment variable.
+        set_environment_variable()
         
-        # Load the preprocessed data.
-        data: DataFrame = load_processed_data(args.data_path)
+        # Download CDAWeb data.
+        start: str = "2021-01-01 00:00:00"
+        end: str = "2021-01-31 23:59:59"
+        load_cdaweb_data(start=start, end=end)
+        # Set CDAWeb data to a dictionary.
+        CDAWeb_data: dict = get_cdaweb_data()
+        # Resample CDAWeb data to match SuperMAG data time intervals.
+        CDAWeb: DataFrame = resample_cdaweb_data(CDAWeb_data)
         
-        # Check possible gaps in the loaded data.
-        print_data_gaps(data)
+        # Get SuperMAG data from a file.
+        file: str = "2021-jan-supermag.csv"
+        SuperMAG: DataFrame = get_supermag_data(file=file)
         
-        # Get features (X) and targets (y).
+        # Combine both data to one DataFrame.
+        merged: DataFrame = merge_data(CDAWeb, SuperMAG)
+
+        # Add lags to the data.
+        data: DataFrame = add_lagged_features(merged)
+
+        # Load the model.
+        model: Booster = load_xgb_model(args.model_path)
+        # Get model features.
+        features: list[str] = model.feature_names
+
+        # Split the data into features (X) and targets (y). 
         X: DataFrame; y: DataFrame
         X, y = split_data(data, features)
-        
-        # X_test and y_test for functions.
+
+        # X_test and y_test variables for functions.
         X_test: DataFrame; y_test: DataFrame
         X_test, y_test = X, y
 
-        # Load the model.
-        model: Booster = load_model(args.model_path)
-
         # Predict.
-        prediction: ndarray = predict_with_loaded_model(model, X_test, y_test)
-        y_pred: DataFrame = get_prediciton_dataframe(prediction, y_test)
+        prediction: ndarray = predict_with_loaded_model(model, X_test)
+        y_pred: DataFrame = get_prediction_dataframe(prediction, y_test)
 
         # Print prediction metrics.
-        get_prediction_metrics(y_test, y_pred, model)
+        get_prediction_metrics(y_test, y_pred, model, training=False)
+
+    # Get residuals.
+    #residuals: DataFrame = y_test - y_pred
 
     # Print feature importances from the final model.
     print_feature_importances(model, features)
@@ -133,8 +142,23 @@ def main(description: str = DESCRIPTION, features: str = DATA_FEATURES) -> None:
     # Stop timing the script and print the elapsed time.
     stop_timing(script_start)
 
+    # Plotting the data, results and residuals.
+
+    if evals is not None:    
+        # Plot train and test root mean square errors.
+        plot_evals_result(evals, model.best_iteration)
+
+    # Plot residuals' density.
+    #residual_density_histogram(residuals)
+
+    # Plot residuals vs. predicted values. Should be random around zero line.
+    #residuals_vs_predicted_scatter(residuals, y_pred)
+
+    # Q-Q plot for residual normality check. XGBoost does not require normality.
+    #q_q_plot(residuals) 
+
     # Plot SMR density histograms.
-    plot_smr_histograms(y) 
+    #plot_smr_histograms(y) 
 
     # Plot SMR MLT predictions vs. true values scatter plot from final fold.
     prediction_scatter_plot(y_pred, y_test)
