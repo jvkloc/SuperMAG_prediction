@@ -32,8 +32,6 @@ def plot_features_time_series(X_test: DataFrame, features: dict = FEATURES) -> N
         axes[2].set_xlabel("Time")
         # Title above all subplots
         fig.suptitle(f"{group_name} time series", y=1.02)
-        # Rotate x-axis labels for better readability
-        plt.xticks(rotation=45)
         # Display.
         plt.tight_layout()
         plt.show()
@@ -158,8 +156,6 @@ def prediction_time_series(
     # Set x-label only for bottom row.
     axes[2].set_xlabel("Time")
     axes[3].set_xlabel("Time")
-    # Rotate x-axis labels for better readability
-    plt.xticks(rotation=45)
     # Adjust layout and display,
     plt.tight_layout()
     plt.show()
@@ -198,8 +194,6 @@ def global_prediction_time_series(
     # Add legend and grid.
     plt.legend()
     plt.grid(True)
-    # Rotate x-axis labels for better readability
-    plt.xticks(rotation=45)
     # Adjust layout and display,
     plt.tight_layout()
     plt.show()
