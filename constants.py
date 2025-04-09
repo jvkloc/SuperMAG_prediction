@@ -10,17 +10,6 @@ FEATURES: dict = {
     "Velocity Components": ["V_GSM_x", "V_GSM_y", "V_GSM_z"]
 }
 
-# Features for saving preprocessed data.
-DATA_FEATURES: list[str] = [
-    "Magnitude", "BGSM_x", "BGSM_y", "BGSM_z", "Np", "Tpr", "V_GSM_x", 
-    "V_GSM_y", "V_GSM_z", "SC_pos_GSM_Re_x", "SC_pos_GSM_Re_y", 
-    "SC_pos_GSM_Re_z", "T", "SMR_lag1", "SMR_lag2", "SMR_lag3", "SMR_lag5", 
-    "SMR00_lag1", "SMR00_lag2", "SMR00_lag3", "SMR00_lag5", "SMR06_lag1", 
-    "SMR06_lag2", "SMR06_lag3", "SMR06_lag5", "SMR12_lag1", "SMR12_lag2", 
-    "SMR12_lag3", "SMR12_lag5", "SMR18_lag1", "SMR18_lag2", "SMR18_lag3", 
-    "SMR18_lag5",
-]
-
 # Prediction outlier threshold (nT).
 THRESHOLD: int = 1.5
 
