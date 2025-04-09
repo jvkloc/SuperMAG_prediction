@@ -19,14 +19,15 @@ from utils import get_features
 
 
 def add_lagged_features(data: DataFrame, targets: list[str] = TARGETS) -> DataFrame:
-    """Adds lagged SMR values as features to the data DataFrame."""
+    """Adds lagged SMR values to the data DataFrame and removes rows with NaN 
+    values."""
     for target in targets:
         data[f"{target}_lag1"] = data[target].shift(1)
         data[f"{target}_lag2"] = data[target].shift(2)
         data[f"{target}_lag3"] = data[target].shift(3)
         data[f"{target}_lag5"] = data[target].shift(5)
-    # Return the data with lagged features.
-    return data
+    cleaned: DataFrame = data.dropna()
+    return cleaned
 
 
 def get_lagged_split(
@@ -44,7 +45,7 @@ def get_lagged_split(
 
     # Add lagged features to test data.
     test: DataFrame = concat([X_test, y_test], axis=1)
-    full_data: DataFrame = concat([train, test], axis=0).dropna(how="all") 
+    full_data: DataFrame = concat([train, test], axis=0) 
     lagged_full_data: DataFrame = add_lagged_features(full_data, targets)
     print(f"Full data shape with lags: {lagged_full_data.shape}")
     lagged_test: DataFrame = lagged_full_data.iloc[len(train):]
@@ -60,7 +61,7 @@ def get_lagged_split(
     return lagged_X_train, lagged_y_train, lagged_X_test, lagged_y_test
 
 
-def get_prediciton_dataframe(
+def get_prediction_dataframe(
     prediction: ndarray,
     lagged_y_test: DataFrame,
     targets: list[str] = TARGETS,
@@ -75,6 +76,7 @@ def get_prediction_metrics(
     y_pred: DataFrame,
     model: Booster,
     targets: list[str] = TARGETS,
+    training: bool = True,
 ) -> dict:
     """Prints prediction metrics and returns them in a dictionary."""
     metrics: dict[str, dict] = {target: {} for target in targets}
@@ -92,8 +94,9 @@ def get_prediction_metrics(
         # Add metrics to the dictionary.
         metrics[target] = {'R2': r2, 'MSE': mse, 'RMSE': rmse, 'MAE': mae}
     
-    print(f"\nBest Iteration: {model.best_iteration}")
-    print(f"Validation RMSE at best iteration: {model.best_score:.2f}")
+    if training:
+        print(f"\nBest Iteration: {model.best_iteration}")
+        print(f"Validation RMSE at best iteration: {model.best_score:.2f}")
     
     return metrics
 
@@ -131,18 +134,11 @@ def print_outliers(
         print(f"Found {nbr} outliers (error > {threshold} nT) for {target} in fold {fold_nbr}")
 
 
-def print_results(y_test: DataFrame, y_pred: DataFrame, targets: list[str] = TARGETS) -> None:
-    """Prints prediction results."""
-    for i in range(0, len(y_test), 100):
-        for j, target in enumerate(targets):
-            print(f"{y_test.index[i]} {target} True: {y_test.iloc[i, j]:.2f}, Pred: {y_pred.iloc[i, j]:.2f}")
-
-
 def print_training_rmse(model: Booster, dtrain: DMatrix, y_train: DataFrame) -> None:
     """Prints the training root mean square error."""
     y_train_pred: ndarray = model.predict(dtrain)
     train_rmse: float = mean_squared_error(y_train, y_train_pred)
-    print(f"Train RMSE: {sqrt(train_rmse):.2f}")
+    print(f"Training RMSE: {sqrt(train_rmse):.2f}")
 
 
 def train_xgboost(
@@ -154,8 +150,8 @@ def train_xgboost(
     estimators: int = N_ESTIMATORS,
     early_stop: int = EARLY_STOPPING_ROUNDS,
 ) -> tuple[Booster, DMatrix, DMatrix, dict]:
-    """Creates and trains an XGBoost model. Returns the model, train and test 
-    data and train and test root mean square error values."""
+    """Initializes and trains an XGBoost model. Returns the model, train and 
+    test data and train and test root mean square error values."""
     # Set parameters.
     dtrain = DMatrix(X_train, label=y_train)
     dtest = DMatrix(X_test, label=y_test)
@@ -175,15 +171,34 @@ def train_xgboost(
     return model, dtrain, dtest, evals_result
 
 
+def train_xgboost_full(
+    X_train: DataFrame,
+    y_train: DataFrame,
+    params: dict = XGB_PARAMS,
+    estimators: int = N_ESTIMATORS,
+) -> Booster:
+    """Initializes and trains an XGBoost model on the full dataset without 
+    testing, evaluation or early stopping."""
+    model: Booster = train(
+        params=params,
+        dtrain=DMatrix(X_train, label=y_train),
+        num_boost_round=estimators,
+        verbose_eval=False,
+    )
+    return model
+
+
 def training_loop(
     cv_splits: list[tuple],
     metrics_per_fold: list[dict],
     model_path: str = MODEL_PATH,
-) -> tuple[Booster, DataFrame, DataFrame, DataFrame, dict]:
+) -> tuple[Booster, DataFrame, DataFrame, DataFrame, list[str], dict]:
     """Trains an XGBoost model for each rolling basis training fold. Saves and
     returns the last model which uses all the training data. Returns also 
     predictions, true test values, X test values and train and test root 
-    mean square error values."""
+    mean square error values. After the rolling basis cv, the function trains 
+    one more model with all the data and saves it without testing or 
+    evaluation."""
 
     total_folds: int = len(cv_splits)
     for i, (Xtrain, ytrain, Xtest, ytest) in enumerate(cv_splits):
@@ -203,7 +218,7 @@ def training_loop(
         # Predict.
         iter_range: tuple = (0, model.best_iteration + 1)
         prediction: ndarray = model.predict(dtest, iteration_range=iter_range)
-        y_pred: DataFrame = get_prediciton_dataframe(prediction, y_test)
+        y_pred: DataFrame = get_prediction_dataframe(prediction, y_test)
 
         # Print metrics and append them to the metrics list.
         fold_metrics: dict = get_prediction_metrics(y_test, y_pred, model)
@@ -217,10 +232,6 @@ def training_loop(
         print_outliers(outliers, fold_nbr)
 
         if fold_nbr == total_folds:
-            # Save the model trained on the whole training data.
-            print(f"Saving the model from fold {fold_nbr}/{total_folds}...")
-            model.save_model(model_path)
-            print(f"Model saved to {model_path}")
             # Merge the data back to one DataFrame for saving.
             training_data: DataFrame; full_data: DataFrame 
             training_data, full_data = unsplit_data(X_train, y_train, X_test, y_test)
@@ -228,5 +239,15 @@ def training_loop(
             save_processed_data(full_data)
             # Get features.
             features: list[str] = get_features(training_data)
-            # Return the model, prediction, true values, features and evaluation.
-            return model, y_pred, y_test, X_test, features, evals
+        
+    # Get X and y for a final model.
+    X_train_full: DataFrame = full_data.drop(columns=TARGETS)
+    y_train_full: DataFrame = full_data[TARGETS]
+    # Train a model with all of the data (no test data).
+    print("\nTraining a final model on all the data...")
+    final_model: Booster = train_xgboost_full(X_train_full, y_train_full)
+    final_model.save_model(model_path)
+    print(f"Final model trained and saved to {model_path}")
+    
+    # Return rolling basis cross-validation results from the last iteration.
+    return model, y_pred, y_test, X_test, features, evals
