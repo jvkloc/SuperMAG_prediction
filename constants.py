@@ -22,7 +22,7 @@ FOLDER: str = "your_folder"
 
 # SuperMAG data path and filename.
 PATH: str = f"{FOLDER}/mag_data/"
-FILE: str = "file.csv"
+FILE: str = "your_file.csv"
 
 # XGBoost model path.
 MODEL_PATH: str = f"{FOLDER}/saved_models/xgboost_model.json"
