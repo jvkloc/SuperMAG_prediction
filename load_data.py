@@ -29,7 +29,7 @@ def load_cdaweb_data(
     print(f"Loading the CDAWeb data took {download_time:.2f} minutes.")
 
 
-def load_processed_data(data_path: str = DATA_PATH) -> DataFrame:
+def load_preprocessed_data(data_path: str = DATA_PATH) -> DataFrame:
     """Loads a DataFrame from data_path."""
     if path.exists(data_path):
         data: DataFrame = read_parquet(data_path)
@@ -56,9 +56,5 @@ def unsplit_data(
     test: DataFrame = concat([X_test, y_test], axis=1)
     # Combine train and test vertically.
     data: DataFrame = concat([train, test], axis=0)
-
-    # Reset index if needed
-    #data = data.reset_index(drop=True)
-
     # Return the recombined data.
     return train, data
