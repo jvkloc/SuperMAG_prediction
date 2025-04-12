@@ -62,17 +62,17 @@ def unsplit_data(
 
 
 def combine_csv_files(csv_path: str = PATH) -> None:
-    """Combines all .csv files from the given folder to a single 
-    .csv file."""
-    # Get list of all .csv files from the given path.
-    files = glob(f"{csv_path}*.csv")
+    """Combines all .csv files from the given folder to a new new .csv file
+    and saves it into the same folder. Does not touch the original files."""
+    # Get list of all .csv files from the path.
+    files: list[str] = glob(f"{csv_path}*.csv")
     print(type(files))
     # Combine all the listed files into a single DataFrame.
     combined: DataFrame = concat(
         [read_csv(file) for file in files],
         ignore_index=True
     )
-    # Get file path for the combined file.    
+    # Get file path for saving the combined file.    
     file_out: str = path.join(csv_path, "combined_SuperMAG.csv")
     # Save the DataFrame to a new .csv file.
     combined.to_csv(file_out, index=False)
