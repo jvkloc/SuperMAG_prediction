@@ -44,7 +44,7 @@ XGB_PARAMS: dict = {
     "eval_metric": "rmse",
     "lambda": 10.0,
     "alpha": 0.1,
-    "multi_strategy": "one_output_per_tree" #"multi_output_tree",
+    "multi_strategy": "one_output_per_tree",
 }
 
 # SuperMAG data fill value.
