@@ -1,12 +1,13 @@
-"""Functions for downloading and processing data."""
+"""Functions for processing data and related files."""
 
+from glob import glob
 from os import path
 from time import perf_counter
 
-from pandas import concat, DataFrame, read_parquet
+from pandas import concat, DataFrame, read_csv, read_parquet
 from pyspedas import ace, wind
 
-from constants import START, END, CDAWEB_PARAMS, DATA_PATH
+from constants import START, END, CDAWEB_PARAMS, DATA_PATH, PATH
 
 
 def load_cdaweb_data(
@@ -39,11 +40,11 @@ def load_preprocessed_data(data_path: str = DATA_PATH) -> DataFrame:
         raise FileNotFoundError(f"No data found at {data_path}")
     
 
-def save_processed_data(data: DataFrame, path: str = DATA_PATH) -> None:
+def save_processed_data(data: DataFrame, datapath: str = DATA_PATH) -> None:
     """Saves the preprocessed data to path."""
     print("Saving the processed data...")
-    data.to_parquet(path)
-    print(f"Data saved to {path}")
+    data.to_parquet(datapath)
+    print(f"Data saved to {datapath}")
 
 
 def unsplit_data(
@@ -58,3 +59,20 @@ def unsplit_data(
     data: DataFrame = concat([train, test], axis=0)
     # Return the recombined data.
     return train, data
+
+
+def combine_csv_files(csv_path: str = PATH) -> None:
+    """Combines all .csv files from the given folder to a single 
+    .csv file."""
+    # Get list of all .csv files from the given path.
+    files = glob(f"{csv_path}*.csv")
+    print(type(files))
+    # Combine all the listed files into a single DataFrame.
+    combined: DataFrame = concat(
+        [read_csv(file) for file in files],
+        ignore_index=True
+    )
+    # Get file path for the combined file.    
+    file_out: str = path.join(csv_path, "combined_SuperMAG.csv")
+    # Save the DataFrame to a new .csv file.
+    combined.to_csv(file_out, index=False)
