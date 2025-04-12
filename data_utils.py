@@ -66,7 +66,6 @@ def combine_csv_files(csv_path: str = PATH) -> None:
     and saves it into the same folder. Does not touch the original files."""
     # Get list of all .csv files from the path.
     files: list[str] = glob(f"{csv_path}*.csv")
-    print(type(files))
     # Combine all the listed files into a single DataFrame.
     combined: DataFrame = concat(
         [read_csv(file) for file in files],
