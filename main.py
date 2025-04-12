@@ -10,7 +10,7 @@ from pandas import DataFrame
 from xgboost import Booster
 
 from constants import DESCRIPTION
-from data_handling import load_cdaweb_data
+from data_utils import load_cdaweb_data
 from load_model import load_xgb_model, predict_with_loaded_model
 from metrics import print_average_metrics, print_feature_importances
 from plotting import *
