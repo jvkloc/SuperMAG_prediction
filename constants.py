@@ -50,7 +50,7 @@ XGB_PARAMS: dict = {
 # SuperMAG data fill value.
 FILL: int = 999999
 
-# CDAWeb datasets (keys) parameters (values).
+# CDAWeb datasets (keys) and parameters (values).
 CDAWEB_PARAMS: dict[str, list[str]] = {
     "ace_mfi": ["Magnitude", "BGSM"],                # AC_H0_MFI (position from SWE)
     "ace_swe": ["Np", "Tpr", "V_GSM", "SC_pos_GSM"], # AC_H0_SWE + position for MFI
