@@ -31,7 +31,7 @@ MODEL_PATH: str = f"{FOLDER}/saved_models/xgboost_model.json"
 DATA_PATH: str = f"{FOLDER}/processed_data/data.parquet"
 
 # ArgParser description.
-DESCRIPTION: str = "Load or save data and load or train a model."
+DESCRIPTION: str = "Download data and train a model or use a loaded model."
 
 # XGBoost parameters.
 N_ESTIMATORS: int = 200
