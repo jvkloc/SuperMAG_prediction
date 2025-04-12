@@ -14,7 +14,7 @@ from constants import (
     EARLY_STOPPING_ROUNDS,
     MODEL_PATH
 )
-from load_data import save_processed_data, unsplit_data
+from data_utils import save_processed_data, unsplit_data
 from utils import get_features
 
 
