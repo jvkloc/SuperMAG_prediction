@@ -18,7 +18,7 @@ from pytplot import get_data
 from constants import (
     TARGETS,
     CDAWEB_PARAMS,
-    PATH,
+    SMAG_PATH,
     FILE,
     DATA_PATH,
     MODEL_PATH,
@@ -128,7 +128,7 @@ def get_rolling_basis_cv_splits(
 
 
 def get_supermag_data(
-    path: str = PATH,
+    path: str = SMAG_PATH,
     file: str = FILE,
     fill: int = FILL,
     targets: list[str] = TARGETS
