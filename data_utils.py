@@ -60,15 +60,22 @@ def unsplit_data(
     return train, data
 
 
+def combine_dataframes(frames: list[DataFrame]) -> None:
+    """Combines all DataFrames from the given list to a new DataFrame and 
+    prints the shape and memory usage of the new DataFrame. Returns the 
+    combined DataFrame."""
+    combined: DataFrame = concat(frames, ignore_index=True)
+    print(combined.shape)
+    print(combined.memory_usage(deep=True).sum() / (1024**2), "MB")
+    return combined
 
-def combine_SuperMAG_dataframes(
-    files: list[DataFrame], csv_path: str = SMAG_PATH
+
+def save_large_dataframe(
+    frame: DataFrame, csv_path: str = SMAG_PATH, filename: str = "SuperMAG.csv"
 ) -> None:
-    """Combines all .csv files from the given folder to a new new .csv file
-    and saves it into the same folder. Does not touch the original files."""
-    # Combine all the listed files into a single DataFrame.
-    combined: DataFrame = concat(files, ignore_index=True)
-    # Get file path for saving the combined file.    
-    file_out: str = path.join(csv_path, "combined_SuperMAG.csv")
-    # Save the DataFrame to a new .csv file.
-    combined.to_csv(file_out, index=False)
+    """Saves the given DataFrame to a .csv file into the given folder with
+    the given file name."""
+    # Add file name to the path.
+    file_out: str = path.join(csv_path, filename)
+    # Save the DataFrame to a .csv file.
+    frame.to_csv(file_out, index=False, chunksize=100_000)
