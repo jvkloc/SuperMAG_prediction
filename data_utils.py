@@ -58,24 +58,3 @@ def unsplit_data(
     data: DataFrame = concat([train, test], axis=0)
     # Return the recombined data.
     return train, data
-
-
-def combine_dataframes(frames: list[DataFrame]) -> None:
-    """Combines all DataFrames from the given list to a new DataFrame and 
-    prints the shape and memory usage of the new DataFrame. Returns the 
-    combined DataFrame."""
-    combined: DataFrame = concat(frames, ignore_index=True)
-    print(combined.shape)
-    print(combined.memory_usage(deep=True).sum() / (1024**2), "MB")
-    return combined
-
-
-def save_large_dataframe(
-    frame: DataFrame, csv_path: str = SMAG_PATH, filename: str = "SuperMAG.csv"
-) -> None:
-    """Saves the given DataFrame to a .csv file into the given folder with
-    the given file name."""
-    # Add file name to the path.
-    file_out: str = path.join(csv_path, filename)
-    # Save the DataFrame to a .csv file.
-    frame.to_csv(file_out, index=False, chunksize=100_000)
