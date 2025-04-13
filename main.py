@@ -9,7 +9,7 @@ from numpy import ndarray
 from pandas import DataFrame
 from xgboost import Booster
 
-from constants import DESCRIPTION
+from constants import DESCRIPTION, PATH
 from data_utils import load_cdaweb_data
 from load_model import load_xgb_model, predict_with_loaded_model
 from metrics import print_average_metrics, print_feature_importances
@@ -34,7 +34,7 @@ from utils import (
 )
 
 
-def main(description: str = DESCRIPTION) -> None:
+def main(description: str = DESCRIPTION, smag_path: str = PATH) -> None:
     """Main function. TODO: args, assuming load model and load data or 
     download data and train a model using --train.
     """
@@ -62,7 +62,7 @@ def main(description: str = DESCRIPTION) -> None:
         CDAWeb: DataFrame = resample_cdaweb_data(CDAWeb_data)
         
         # Get SuperMAG data from a file.
-        SuperMAG: DataFrame = get_supermag_data()
+        SuperMAG: DataFrame = get_supermag_data(path=smag_path)
 
         # Combine both data to one DataFrame.
         data: DataFrame = merge_data(CDAWeb, SuperMAG)
