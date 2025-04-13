@@ -21,7 +21,8 @@ END: str = "2020-12-31 23:59:59"
 FOLDER: str = "your_folder"
 
 # SuperMAG data path and filename.
-PATH: str = f"{FOLDER}/mag_data/"
+PATH: str = f"{FOLDER}/mag_data/downloads/"
+SMAG_PATH: str = f"{FOLDER}/mag_data/"
 FILE: str = "your_file.csv"
 
 # XGBoost model path.
