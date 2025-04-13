@@ -6,7 +6,7 @@ from glob import glob
 from os import path
 from pandas import concat, DataFrame, read_csv
 
-from constants import SMAG_PATH
+from constants import SMAG_PATH, PATH
 from utils import get_supermag_data
 
 
@@ -49,7 +49,7 @@ def combine_dataframes(frames: list[DataFrame]) -> None:
 
 
 def save_large_dataframe(
-    frame: DataFrame, csv_path: str = SMAG_PATH, filename: str = "SuperMAG.csv"
+    frame: DataFrame, csv_path: str = PATH, filename: str = "SuperMAG.csv"
 ) -> None:
     """Saves the given DataFrame to a .csv file into the given folder with
     the given file name."""
