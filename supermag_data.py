@@ -41,13 +41,10 @@ def get_dataframe_list(csv_path: str = SMAG_PATH) -> list[DataFrame]:
 
 def combine_dataframes(frames: list[DataFrame]) -> None:
     """Returns all DataFrames from the given list combined to a new DataFrame.
-    Prints the shape and memory usage of the new DataFrame. Deletes the
-    DataFrame list and frees the memory allocated for it."""
+    Deletes the DataFrame list and frees the memory allocated for it."""
     combined: DataFrame = concat(frames, ignore_index=True)
-    print(combined.shape)
-    print(combined.memory_usage(deep=True).sum() / (1024**2), "MB")
-    del frames
-    collect() # Free the memory allocated to the DataFrame list.
+    del frames # Delete the list given as argument.
+    collect()  # Free the memory allocated to the DataFrames list.
     return combined
 
 
