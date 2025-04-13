@@ -1,13 +1,12 @@
 """Functions for processing data and related files."""
 
-from glob import glob
 from os import path
 from time import perf_counter
 
-from pandas import concat, DataFrame, read_csv, read_parquet
+from pandas import concat, DataFrame, read_parquet
 from pyspedas import ace, wind
 
-from constants import START, END, CDAWEB_PARAMS, DATA_PATH, PATH
+from constants import START, END, CDAWEB_PARAMS, DATA_PATH, SMAG_PATH
 
 
 def load_cdaweb_data(
@@ -61,16 +60,14 @@ def unsplit_data(
     return train, data
 
 
-def combine_csv_files(csv_path: str = PATH) -> None:
+
+def combine_SuperMAG_dataframes(
+    files: list[DataFrame], csv_path: str = SMAG_PATH
+) -> None:
     """Combines all .csv files from the given folder to a new new .csv file
     and saves it into the same folder. Does not touch the original files."""
-    # Get list of all .csv files from the path.
-    files: list[str] = glob(f"{csv_path}*.csv")
     # Combine all the listed files into a single DataFrame.
-    combined: DataFrame = concat(
-        [read_csv(file) for file in files],
-        ignore_index=True
-    )
+    combined: DataFrame = concat(files, ignore_index=True)
     # Get file path for saving the combined file.    
     file_out: str = path.join(csv_path, "combined_SuperMAG.csv")
     # Save the DataFrame to a new .csv file.
